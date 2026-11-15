@@ -1,0 +1,158 @@
+{
+ "barnard's star": {
+  "query": "Barnard's Star",
+  "name": "NAME Barnard's star",
+  "ra_j2000": 269.4520769586187,
+  "dec_j2000": 4.69336496657667,
+  "ra": 269.4460739011769,
+  "dec": 4.770711837064371,
+  "pm": {
+   "pmra": -801.551,
+   "pmdec": 10362.394
+  },
+  "note": "Moved 279\" since J2000 (proper motion 10.39\"/yr); centred on today's position."
+ },
+ "barnards star": {
+  "query": "Barnard's Star",
+  "name": "NAME Barnard's star",
+  "ra_j2000": 269.4520769586187,
+  "dec_j2000": 4.69336496657667,
+  "ra": 269.4460739011769,
+  "dec": 4.770711837064371,
+  "pm": {
+   "pmra": -801.551,
+   "pmdec": 10362.394
+  },
+  "note": "Moved 279\" since J2000 (proper motion 10.39\"/yr); centred on today's position."
+ },
+ "barnard": {
+  "query": "Barnard's Star",
+  "name": "NAME Barnard's star",
+  "ra_j2000": 269.4520769586187,
+  "dec_j2000": 4.69336496657667,
+  "ra": 269.4460739011769,
+  "dec": 4.770711837064371,
+  "pm": {
+   "pmra": -801.551,
+   "pmdec": 10362.394
+  },
+  "note": "Moved 279\" since J2000 (proper motion 10.39\"/yr); centred on today's position."
+ },
+ "wise j085510.83-071442.5": {
+  "query": "WISE J085510.83-071442.5",
+  "name": "WISEA J085510.74-071442.5",
+  "ra_j2000": 133.81890825,
+  "dec_j2000": -7.247048,
+  "ra": 133.75778304296256,
+  "dec": -7.242023101906675,
+  "pm": {
+   "pmra": -8123.7,
+   "pmdec": 673.2
+  },
+  "note": "Moved 219\" since J2000 (proper motion 8.15\"/yr); centred on today's position."
+ },
+ "wise 0855": {
+  "query": "WISE J085510.83-071442.5",
+  "name": "WISEA J085510.74-071442.5",
+  "ra_j2000": 133.81890825,
+  "dec_j2000": -7.247048,
+  "ra": 133.75778304296256,
+  "dec": -7.242023101906675,
+  "pm": {
+   "pmra": -8123.7,
+   "pmdec": 673.2
+  },
+  "note": "Moved 219\" since J2000 (proper motion 8.15\"/yr); centred on today's position."
+ },
+ "wise 0855-0714": {
+  "query": "WISE J085510.83-071442.5",
+  "name": "WISEA J085510.74-071442.5",
+  "ra_j2000": 133.81890825,
+  "dec_j2000": -7.247048,
+  "ra": 133.75778304296256,
+  "dec": -7.242023101906675,
+  "pm": {
+   "pmra": -8123.7,
+   "pmdec": 673.2
+  },
+  "note": "Moved 219\" since J2000 (proper motion 8.15\"/yr); centred on today's position."
+ },
+ "eps ind b": {
+  "query": "eps Ind B",
+  "name": "* eps Ind B",
+  "ra_j2000": 331.04414658852124,
+  "dec_j2000": -56.78284419511611,
+  "ra": 331.09840270224026,
+  "dec": -56.80125710533861,
+  "pm": {
+   "pmra": 3981.977,
+   "pmdec": -2466.832
+  },
+  "note": "Moved 126\" since J2000 (proper motion 4.68\"/yr); centred on today's position."
+ },
+ "epsilon indi b": {
+  "query": "eps Ind B",
+  "name": "* eps Ind B",
+  "ra_j2000": 331.04414658852124,
+  "dec_j2000": -56.78284419511611,
+  "ra": 331.09840270224026,
+  "dec": -56.80125710533861,
+  "pm": {
+   "pmra": 3981.977,
+   "pmdec": -2466.832
+  },
+  "note": "Moved 126\" since J2000 (proper motion 4.68\"/yr); centred on today's position."
+ },
+ "rw aur": {
+  "query": "RW Aur",
+  "name": "V* RW Aur",
+  "ra_j2000": 76.95652603458,
+  "dec_j2000": 30.40143817389,
+  "ra": 76.95658860393122,
+  "dec": 30.40128642681664,
+  "pm": {
+   "pmra": 7.23,
+   "pmdec": -20.33
+  },
+  "note": "Moved 1\" since J2000 (proper motion 0.02\"/yr); centred on today's position."
+ },
+ "rw aurigae": {
+  "query": "RW Aur",
+  "name": "V* RW Aur",
+  "ra_j2000": 76.95652603458,
+  "dec_j2000": 30.40143817389,
+  "ra": 76.95658860393122,
+  "dec": 30.40128642681664,
+  "pm": {
+   "pmra": 7.23,
+   "pmdec": -20.33
+  },
+  "note": "Moved 1\" since J2000 (proper motion 0.02\"/yr); centred on today's position."
+ },
+ "r dra": {
+  "query": "R Dra",
+  "name": "V* R Dra",
+  "ra_j2000": 248.16761083295,
+  "dec_j2000": 66.75497941722,
+  "ra": 248.16722041152406,
+  "dec": 66.75502531512291,
+  "pm": {
+   "pmra": -20.643,
+   "pmdec": 6.149
+  },
+  "note": "Moved 1\" since J2000 (proper motion 0.02\"/yr); centred on today's position."
+ },
+ "r draconis": {
+  "query": "R Dra",
+  "name": "V* R Dra",
+  "ra_j2000": 248.16761083295,
+  "dec_j2000": 66.75497941722,
+  "ra": 248.16722041152406,
+  "dec": 66.75502531512291,
+  "pm": {
+   "pmra": -20.643,
+   "pmdec": 6.149
+  },
+  "note": "Moved 1\" since J2000 (proper motion 0.02\"/yr); centred on today's position."
+ }
+}

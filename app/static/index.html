@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galadriel · SPHEREx motion explorer</title>
+<meta name="description" content="Blink NASA SPHEREx infrared images of any patch of sky to find stars, brown dwarfs and other objects that move or change.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- ============================================================ top bar -->
+<header class="appbar">
+  <a class="word" href="/" aria-label="Galadriel home">GALADRIEL<small>SPHEREx motion explorer</small></a>
+  <div class="telemetry" aria-label="Mission status">
+    <span>UTC <b id="utcClock">--:--:--</b></span>
+    <span class="link" title="Connection to NASA's Infrared Science Archive (IRSA)"><i class="lamp" id="linkLamp"></i>IRSA LINK <b id="linkState">CHECKING</b></span>
+    <span>DATA <b id="dataRel">SPHEREx</b></span>
+  </div>
+  <form id="searchForm" class="search" autocomplete="off" role="search" data-map="search">
+    <details class="menu targets" id="targetsMenu" data-map="targets">
+      <summary title="The five test objects named in the NASA challenge">Targets</summary>
+      <div class="menu-pop left" id="presets" role="menu"></div>
+    </details>
+    <label for="q" class="sr">Star name or coordinates</label>
+    <input id="q" name="q" placeholder="Star name or RA Dec, e.g. Barnard's Star" required>
+    <button class="sw primary" type="submit" title="Find this object and load its SPHEREx pictures">Acquire</button>
+  </form>
+  <nav class="appnav" aria-label="Main">
+    <label class="lang" title="Language">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M1.5 8h13M8 1.5c2 2 2.8 4 2.8 6.5S10 12.5 8 14.5M8 1.5C6 3.5 5.2 5.5 5.2 8S6 12.5 8 14.5"/></svg>
+      <span class="sr">Language</span>
+      <select id="langSel" data-no-i18n aria-label="Language"></select>
+    </label>
+    <details class="menu" id="helpMenu">
+      <summary class="sw accent" title="Page map, missions, simple view">Guide</summary>
+      <div class="menu-pop narrow" role="menu">
+        <button class="menu-item" type="button" id="openMap" role="menuitem"><b>Page map</b><span>What every switch, panel and chart means</span></button>
+        <button class="menu-item" type="button" id="openGuide" role="menuitem"><b>Guided missions</b><span>Four one-minute walkthroughs on real data</span></button>
+        <button class="menu-item" type="button" id="modeToggle" role="menuitem"><b>Simple view</b><span>Fewer controls, plain-language explanations</span></button>
+        <a class="menu-item" href="#proof" role="menuitem"><b>Does it work?</b><span>Tested on the five challenge targets</span></a>
+        <a class="menu-item" href="#about" role="menuitem"><b>About the data</b><span>Where the pictures come from</span></a>
+      </div>
+    </details>
+  </nav>
+</header>
+
+<!-- ============================================================ spectral strip -->
+<div class="specstrip expert-only" data-map="wavelength">
+  <div class="bands" id="channels" role="radiogroup" aria-label="Camera / wavelength"></div>
+  <button class="info strip-info" type="button" data-info="strip" aria-expanded="false" aria-label="How to read the spectral strip">i</button>
+  <div class="fovbox">
+    <label for="fov">FIELD <output id="fovOut">4′</output></label>
+    <input type="range" id="fov" min="1" max="30" step="0.5" value="4" title="How much sky to show (arcminutes). Larger is slower to load.">
+  </div>
+</div>
+<div class="infobox strip-box expert-only" id="info-strip" hidden>SPHEREx splits infrared light into 102 colours using six cameras, <b>D1 (shortest, blue line)</b> to <b>D6 (longest, red line)</b>. Choose one to see only that camera. <b>ALL</b> combines them; <b>COLOUR</b> paints short wavelengths blue and long ones red. Labels show what each range is good for: <b>CH₄</b> methane, <b>CO₂</b> carbon dioxide ice, <b>cold</b> the coldest objects. <b>FIELD</b> sets how much sky you see.</div>
+<p class="channel-hint expert-only" id="channelHint"></p>
+
+<div class="deck">
+  <!-- ============================================================ workflow rail -->
+  <nav class="rail expert-only" aria-label="Workflow" data-map="workflow">
+    <h4>Workflow <button class="info" type="button" data-info="workflow" aria-expanded="false" aria-label="How to read this">i</button></h4><div class="infobox" id="info-workflow" hidden>The five steps of a search, like a spacecraft checklist. Select a step to do it. Green = done, amber = what to do next.</div>
+    <ol class="steps" id="workflow">
+      <li><button class="step" type="button" data-step="acquire"><span class="n">01</span><span><b>Acquire</b><small id="wfAcquire">Choose a target</small></span><i class="led"></i></button></li>
+      <li><button class="step" type="button" data-step="observe"><span class="n">02</span><span><b>Observe</b><small>Blink the visits</small></span><i class="led"></i></button></li>
+      <li><button class="step" type="button" data-step="detect"><span class="n">03</span><span><b>Detect</b><small>Find what changed</small></span><i class="led"></i></button></li>
+      <li><button class="step" type="button" data-step="analyse"><span class="n">04</span><span><b>Analyse</b><small>Click an object</small></span><i class="led"></i></button></li>
+      <li><button class="step" type="button" data-step="report"><span class="n">05</span><span><b>Report</b><small>Share or embed</small></span><i class="led"></i></button></li>
+    </ol>
+    <div class="railnote">
+      <p>First time here? Follow the steps; each light turns green when it's done.</p>
+      <button class="sw" type="button" id="railGuide">Guided missions</button>
+      <button class="sw" type="button" id="railMap">Page map</button>
+    </div>
+  </nav>
+
+  <!-- ============================================================ viewport -->
+  <section class="viewer" aria-label="Image viewer">
+    <div class="quick simple-only" aria-label="Pick a star">
+      <span class="quick-label">Pick a star</span>
+      <div class="quick-row" id="quickTargets"></div>
+    </div>
+
+    <div class="plate-wrap" id="plateWrap" data-map="image">
+      <canvas id="plate" width="720" height="720" tabindex="0" aria-label="SPHEREx image. Arrow keys step through visits."></canvas>
+      <span class="br tl" aria-hidden="true"></span><span class="br tr" aria-hidden="true"></span><span class="br bl" aria-hidden="true"></span><span class="br brr" aria-hidden="true"></span>
+      <div class="ro tl" id="epochLabel"></div>
+      <div class="ro tr" id="roTarget"></div>
+      <div class="ro brr" id="roBand"></div>
+      <div class="ro hover" id="readout" aria-live="polite"></div>
+      <div class="plate-caption" id="plateCaption"></div>
+      <div class="empty" id="empty">
+        <p class="empty-title">Viewport standing by</p>
+        <p>Enter a target above, pick a challenge target, or open the Page map if this is your first time.</p>
+      </div>
+      <div class="loading" id="loading" hidden>
+        <p class="seq-title">Acquisition sequence</p>
+        <ol class="seq" id="seq">
+          <li data-k="0">Resolve target position</li>
+          <li data-k="1">Query SPHEREx archive</li>
+          <li data-k="2">Download image cutouts</li>
+          <li data-k="3">Align and stack visits</li>
+        </ol>
+        <p id="loadingText" class="sr">Searching the SPHEREx archive</p>
+        <p class="loading-sub" id="loadingSub"></p>
+      </div>
+    </div>
+
+    <div class="transport" id="transport">
+      <div class="playback" data-map="playback">
+        <button class="sw icon" id="prevBtn" title="Previous visit (←)" aria-label="Previous visit">‹</button>
+        <button class="sw primary play" id="playBtn" aria-label="Play"><i class="led" aria-hidden="true"></i><span>Play</span></button>
+        <button class="sw icon" id="nextBtn" title="Next visit (→)" aria-label="Next visit">›</button>
+        <label class="speed"><span>RATE</span>
+          <input type="range" id="speed" min="120" max="1500" step="20" value="550" aria-label="Frame duration">
+        </label>
+      </div>
+      <label class="moved simple-only" id="moveToggleLabel" title="Subtract the pictures from each other so only changes remain"><input type="checkbox" id="moveToggle"> Show only what moved</label>
+      <div class="modes expert-only" role="radiogroup" aria-label="Display mode" data-map="modes">
+        <button class="seg on" data-mode="blink" role="radio" aria-checked="true" title="Show each visit in turn (B)"><i class="led"></i>Blink</button>
+        <button class="seg" data-mode="diff" role="radio" aria-checked="false" title="Each visit minus the others: still stars vanish, movers leave a pair (D)"><i class="led"></i>Difference</button>
+        <button class="seg" data-mode="change" role="radio" aria-checked="false" title="How much each pixel changed across visits (C)"><i class="led"></i>Change map</button>
+        <button class="seg" data-mode="coadd" role="radio" aria-checked="false" title="All visits added together (A)"><i class="led"></i>Deep stack</button>
+      </div>
+    </div>
+    <div class="timeline" id="timeline" aria-label="SPHEREx visits" data-map="timeline"></div>
+
+    <section class="briefing expert-only" id="briefing" aria-live="polite" data-map="briefing">
+      <div class="brief-col"><h4>What you're seeing</h4><p id="briefSee">Choose a target to begin.</p></div>
+      <div class="brief-col"><h4>Why it matters</h4><p id="briefWhy">Nearby stars, cold brown dwarfs and maybe unknown planets give themselves away by moving across the sky. SPHEREx photographs the whole sky every six months, so that motion shows up when you compare its pictures.</p></div>
+      <div class="brief-col next"><h4>Try next</h4><p id="briefNext">Pick a target from Targets in the search box, or type a star name.</p></div>
+    </section>
+
+    <section class="charts expert-only" id="charts" hidden data-map="charts">
+      <figure class="panel">
+        <figcaption><h4>Spectrum <button class="info" type="button" data-info="spectrum" aria-expanded="false" aria-label="How to read this">i</button></h4><div class="infobox" id="info-spectrum" hidden>Brightness at each wavelength. <b>Each dot is one SPHEREx picture</b>: SPHEREx's filters change colour across the camera, so every picture samples a slightly different wavelength. <b>Left</b> = shorter infrared (0.75 µm), <b>right</b> = longer (5 µm). <b>Higher</b> = brighter (mJy). <b>Grey bands</b> mark molecules: a dip inside one means water, methane, CO₂ or CO is absorbing light, a fingerprint of cool stars and brown dwarfs.</div><span class="cap-note" id="specCaption"></span></figcaption>
+        <canvas id="specChart" width="640" height="300"></canvas>
+      </figure>
+      <figure class="panel">
+        <figcaption><h4>Light curve <button class="info" type="button" data-info="lightcurve" aria-expanded="false" aria-label="How to read this">i</button></h4><div class="infobox" id="info-lightcurve" hidden>Brightness over time. <b>Left to right is date</b>; <b>higher</b> is brighter. <b>Each colour is one camera</b>, so compare dots of the same colour. Cameras see different wavelengths, so their levels differ. A colour that rises and falls means the object really changed. Hollow dots: too bright for the camera, measured from the outer glow.</div><span class="cap-note" id="lcCaption"></span></figcaption>
+        <canvas id="lcChart" width="640" height="300"></canvas>
+      </figure>
+    </section>
+
+  </section>
+
+  <!-- ============================================================ instrument panels -->
+  <aside class="side" aria-label="Instrument panels">
+    <section class="panel explain simple-only" aria-live="polite">
+      <h4>What you're seeing</h4>
+      <div id="explainBody"><p>Loading SPHEREx pictures…</p></div>
+      <div class="explain-actions">
+        <button class="sw primary" type="button" id="tryMission">Try a guided mission</button>
+        <button class="sw" type="button" id="showTools">Show all tools</button>
+      </div>
+    </section>
+
+    <div class="tabs expert-only" role="tablist" data-map="tabs">
+      <button class="tab" role="tab" data-tab="guide" aria-selected="false">Guide</button>
+      <button class="tab" role="tab" data-tab="object" aria-selected="true">Object</button>
+      <button class="tab" role="tab" data-tab="changes" aria-selected="false">Changes</button>
+      <button class="tab" role="tab" data-tab="view" aria-selected="false">View</button>
+      <button class="tab" role="tab" data-tab="share" aria-selected="false">Share</button>
+    </div>
+
+    <section class="tabpanel expert-only" data-panel="guide" id="missionPanel" hidden>
+      <div class="panel" id="missionBody"></div>
+    </section>
+
+    <section class="tabpanel expert-only" data-panel="object">
+      <div class="panel">
+        <h4>Target <button class="info" type="button" data-info="target" aria-expanded="false" aria-label="How to read this">i</button></h4><div class="infobox" id="info-target" hidden>The object you searched for. <b>Position today</b> is where it is now: fast stars drift, so old catalogue positions can be minutes of arc off. <b>Catalogue motion</b> is how fast it crosses the sky in arcseconds per year (″/yr). For scale, the full Moon is about 1,800″ wide.</div>
+        <p class="hint" id="resolveNote"></p>
+        <dl class="kv" id="targetKv"></dl>
+      </div>
+      <div class="panel" id="objectPanel" hidden>
+        <h4>Selected object <button class="info" type="button" data-info="object" aria-expanded="false" aria-label="How to read this">i</button></h4><div class="infobox" id="info-object" hidden>What SPHEREx found for the spot you clicked. <b>Measured motion</b>: the tool follows the object across visits and fits a straight line. <b>The bar</b>: blue is SPHEREx's speed, the green line is Gaia's. If the bar ends near the line, they agree. <b>Best detector</b>: the camera where it shows most clearly. Cold objects are brightest in D6.</div>
+        <div id="objectBody"></div>
+      </div>
+      <div class="panel" id="objectEmpty">
+        <h4>Selected object</h4>
+        <p class="hint">Click any object on the image to measure its motion, compare it with Gaia, find the camera where it shows best, and plot its spectrum and light curve.</p>
+      </div>
+    </section>
+
+    <section class="tabpanel expert-only" data-panel="changes" hidden>
+      <div class="panel">
+        <div id="findings" hidden>
+          <h4>Detections <button class="info" type="button" data-info="detections" aria-expanded="false" aria-label="How to read this">i</button></h4><div class="infobox" id="info-detections" hidden>Spots that changed between visits, brightest change first. <b>Green</b>: a star Gaia already knows, either moving or flickering. <b>Orange</b>: nothing in Gaia there. It might be noise, an asteroid or a cold object Gaia can't see; measure it to find out. The numbers match the marks on the image.</div>
+          <p class="hint">Spots that changed between visits. Green: known to Gaia. Orange: no Gaia match, worth a closer look. Select one to measure it.</p>
+          <ol class="finds" id="finds"></ol>
+        </div>
+        <p class="hint" id="changesEmpty">Acquire a target to see what changed.</p>
+      </div>
+    </section>
+
+    <section class="tabpanel expert-only" data-panel="view" hidden>
+      <div class="panel">
+        <h4>Display <button class="info" type="button" data-info="display" aria-expanded="false" aria-label="How to read this">i</button></h4><div class="infobox" id="info-display" hidden><b>Colours</b>: Deep space is white stars on black; Photographic plate is black on white, like the glass plates Pluto was found on. <b>Stretch</b> and <b>Contrast</b> change how faint things are shown. They don't change the data.</div>
+        <div class="row two">
+          <label>Colours
+            <select id="cmap">
+              <option value="gray">Deep space</option>
+              <option value="plate">Photographic plate</option>
+              <option value="heat">Heat</option>
+            </select>
+          </label>
+          <label>Stretch
+            <select id="stretch">
+              <option value="asinh">Asinh</option>
+              <option value="linear">Linear</option>
+              <option value="sqrt">Square root</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <label for="contrast" class="row-label">Contrast <output id="contrastOut"></output></label>
+          <input type="range" id="contrast" min="90" max="99.9" step="0.1" value="99.3">
+        </div>
+      </div>
+      <div class="panel">
+        <h4>Overlays <button class="info" type="button" data-info="overlays" aria-expanded="false" aria-label="How to read this">i</button></h4><div class="infobox" id="info-overlays" hidden>Drawings on top of the image. <b>Gaia stars</b>: green circles mark stars from ESA's Gaia catalogue, moved to each visit's date; a dashed track means a fast mover. <b>Marks</b>: numbered detections. <b>Artefact flags</b>: areas where the camera recorded glitches (ghosts, streaks). <b>Reticle</b>: target marker, 1′ scale bar.</div>
+        <div class="toggles">
+          <label class="flip"><input type="checkbox" id="showGaia" checked><span class="lever" aria-hidden="true"></span>Gaia DR3 stars at each visit</label>
+          <label class="flip"><input type="checkbox" id="showMovers" checked><span class="lever" aria-hidden="true"></span>Marks on detections</label>
+          <label class="flip"><input type="checkbox" id="showFlags"><span class="lever" aria-hidden="true"></span>Detector artefact flags</label>
+          <label class="flip"><input type="checkbox" id="showGrid" checked><span class="lever" aria-hidden="true"></span>Reticle, scale and compass</label>
+        </div>
+      </div>
+      <div class="panel">
+        <h4>Visit grouping <button class="info" type="button" data-info="grouping" aria-expanded="false" aria-label="How to read this">i</button></h4><div class="infobox" id="info-grouping" hidden>SPHEREx takes many pictures each time it passes over a spot. They are grouped into visits: a new visit starts after a gap longer than the first number. Long stretches of continuous coverage are split into chunks. Leave these alone unless you know you need them.</div>
+        <div class="row two">
+          <label>Gap between visits (days)<input type="number" id="gap" value="15" min="1" max="120"></label>
+          <label>Longest visit (days)<input type="number" id="span" value="45" min="3" max="200"></label>
+        </div>
+        <div class="row two">
+          <label>Images per visit<input type="number" id="per" value="12" min="2" max="40"></label>
+          <label>Maximum visits<input type="number" id="maxe" value="12" min="2" max="24"></label>
+        </div>
+      </div>
+      <div class="panel">
+        <h4>Sky context <button class="info" type="button" data-info="context" aria-expanded="false" aria-label="How to read this">i</button></h4><div class="infobox" id="info-context" hidden>A wider view from the 2MASS survey (near-infrared, about 2000), with a box marking the patch shown in the main image. Use it to see where you are.</div>
+        <div id="aladin" class="aladin"></div>
+        <p class="hint">2MASS survey via Aladin Lite (CDS). The box marks your field.</p>
+      </div>
+    </section>
+
+    <section class="tabpanel expert-only" data-panel="share" hidden>
+      <div class="panel">
+        <h4>Report <button class="info" type="button" data-info="report" aria-expanded="false" aria-label="How to read this">i</button></h4><div class="infobox" id="info-report" hidden>Found something? <b>Copy link</b> opens exactly this view for anyone. <b>Embed code</b> puts the viewer in another web page. <b>Save animation</b> records the blink as a video.</div>
+        <p class="hint">The link keeps the target, field, camera and display mode, so anyone can open exactly this view.</p>
+        <div class="stack">
+          <button class="sw" id="copyLink" type="button">Copy link</button>
+          <button class="sw" id="copyEmbed" type="button">Copy embed code</button>
+          <button class="sw" id="record" type="button">Save animation (WebM)</button>
+        </div>
+        <p class="hint" id="shareNote"></p>
+      </div>
+    </section>
+  </aside>
+</div>
+
+<div class="statusbar" id="readoutPanel" aria-label="Status" data-map="status">
+  <span class="status-target">TARGET <b id="capTarget">NONE</b></span>
+  <dl class="vitals expert-only" id="vitals"></dl>
+  <button class="toggle" type="button" id="soundToggle" role="switch" aria-checked="true" title="Cockpit sounds on or off"><span class="lever" aria-hidden="true"></span><span>Sound</span></button>
+</div>
+
+<section class="proof" id="proof" aria-labelledby="proofTitle">
+  <h2 id="proofTitle">Does it work?</h2>
+  <p class="proof-lede">Before trusting a new discovery, a tool has to get the known answers right. Galadriel was run on real SPHEREx pictures of all five challenge targets and its results were compared with the speeds measured by ESA's Gaia and other catalogues. It measures speed from SPHEREx alone, without looking at the catalogue first.</p>
+  <div class="proof-wrap">
+    <table class="proof-table">
+      <thead><tr>
+        <th scope="col">Target</th>
+        <th scope="col">What it is</th>
+        <th scope="col">Speed across the sky <span class="th-sub">SPHEREx vs catalogue, ″ per year</span></th>
+        <th scope="col">Error <span class="th-sub">in SPHEREx pixels</span></th>
+        <th scope="col">Data used</th>
+        <th scope="col">Result</th>
+      </tr></thead>
+      <tbody id="proofRows"><tr><td colspan="6" class="proof-empty">Loading test results…</td></tr></tbody>
+    </table>
+  </div>
+  <p class="proof-note"><b>How to read it.</b> One SPHEREx pixel is 6.2″ wide, about the width of a coin seen from 800 metres. An error under one pixel means Galadriel puts the object where the catalogue does, to better than the camera's own sharpness. Very bright stars overload the camera's centre, so for them Galadriel measures from the glow around the star and reports anything under 5″ a year as "not moving".</p>
+</section>
+
+<footer class="about" id="about">
+  <h2>About the data</h2>
+  <ol class="about-grid">
+    <li><h3>Find</h3><p>Galadriel asks NASA's Infrared Science Archive for every SPHEREx picture of your target and cuts out just the patch you asked for.</p></li>
+    <li><h3>Clean</h3><p>Glow from interplanetary dust is removed, glitches are rejected, overloaded star centres are filled, and the pictures are aligned and grouped into visits.</p></li>
+    <li><h3>Compare</h3><p>Visits are blinked and subtracted. Gaia stars are moved to each visit's date, so a mover without a Gaia match stands out.</p></li>
+    <li><h3>Measure</h3><p>For any object you click: its speed from SPHEREx alone, its spectrum across 102 infrared colours, and its brightness over time.</p></li>
+  </ol>
+  <p class="credit">Data: NASA/JPL-Caltech SPHEREx via the NASA/IPAC Infrared Science Archive · Gaia DR3 (ESA) · CDS Sesame · Aladin Lite.<br>The name: Galadriel, the light-bearer of Tolkien's stories, for a tool that brings SPHEREx's invisible infrared light into view. Built for the 2026 NASA Space Apps Challenge, "Planet X and SPHEREx".</p>
+</footer>
+
+<!-- page map -->
+<div class="map-layer" id="mapLayer" hidden>
+  <div class="map-shade" id="mapShade"></div>
+  <div class="map-pins" id="mapPins" aria-hidden="true"></div>
+  <aside class="map-panel" role="dialog" aria-modal="true" aria-labelledby="mapTitle">
+    <div class="map-head">
+      <h2 id="mapTitle">Page map</h2>
+      <button class="sw" type="button" id="mapClose" aria-label="Close the page map">Close</button>
+    </div>
+    <p class="map-intro">Galadriel shows SPHEREx pictures of one patch of sky, taken months apart, so you can see what moves or changes. Here is every part of the console, in the order you'd use it. Select a number to light it up.</p>
+    <ol class="map-list" id="mapList"></ol>
+    <h3 class="map-sub">Keyboard</h3>
+    <dl class="map-keys">
+      <dt>Space</dt><dd>Play or pause</dd>
+      <dt>← →</dt><dd>Previous or next visit</dd>
+      <dt>B D C A</dt><dd>Blink, Difference, Change map, Deep stack</dd>
+      <dt>Esc</dt><dd>Close this map</dd>
+    </dl>
+  </aside>
+</div>
+
+<script src="/static/i18n.js"></script>
+<script src="/static/app.js"></script>
+<script src="/static/missions.js"></script>
+<script src="/static/pagemap.js"></script>
+<script src="/static/cockpit.js"></script>
+</body>
+</html>
