@@ -433,7 +433,7 @@ function updateBriefing() {
   }
   if (/0855/.test(S.target || "") && ch !== "D6" && S.mode !== "change") next = tr("This brown dwarf is too cold to show here. Choose D6 (4.4–5.0 µm) in the strip at the top, then look just left of the reticle.");
   const o = S.lastObject;
-  if (o && S.mode !== "change") {
+  if (o) {
     const m = o.motion;
     const moving = m && m.total > Math.max(m.floor || 1, 3 * m.err);
     let first;
@@ -442,6 +442,7 @@ function updateBriefing() {
     else if (Math.abs(o.gaia.pm_tot / 1000 - m.total) < Math.max(1.5, 3 * m.err)) first = tr("The object you selected moves {0}″ a year, and Gaia agrees.", m.total.toFixed(1));
     else first = tr("The object you selected moves {0}″ a year, but Gaia gives a different speed.", m.total.toFixed(1));
     next = first + " " + tr("Its spectrum and light curve are just below the image; the i buttons explain how to read them.");
+    if (S.mode === "change") next += " " + tr("Press Blink to watch it, or Difference to see where it moved.");
   }
   const story = STORIES[S.target];
   $("briefSee").innerHTML = see;

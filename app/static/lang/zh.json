@@ -346,5 +346,6 @@
 "{0} visits · {1} pictures": "{0} 次访问 · {1} 张图像",
 "{0}: what changed": "{0}：有什么变化",
 "{0}: {1} of {2}": "{0}：{1} / {2}",
-"{0}″/yr toward {1}": "{0}″/年，朝{1}"
+"{0}″/yr toward {1}": "{0}″/年，朝{1}",
+"Press Blink to watch it, or Difference to see where it moved.": "按“闪烁”观看它，或按“差分”看它移动到了哪里。"
 }
