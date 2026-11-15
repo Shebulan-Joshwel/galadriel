@@ -273,6 +273,23 @@ def view_id_for(params):
     return hashlib.sha1(s.encode()).hexdigest()[:16]
 
 
+def _demo_near(ra, dec, tol_arcmin=0.6):
+    """A bundled view centred within tol of (ra, dec), whatever its field size."""
+    d = config.DEMO_DIR / "views"
+    if not d.exists():
+        return None
+    for f in d.glob("*.json"):
+        try:
+            p = json.loads(f.read_text())["params"]
+        except Exception:  # noqa: BLE001
+            continue
+        dra = (p["ra"] - ra + 180) % 360 - 180
+        sep = 60 * np.hypot(dra * np.cos(np.radians(dec)), p["dec"] - dec)
+        if sep < tol_arcmin:
+            return json.loads(f.read_text())
+    return None
+
+
 def build_view(ra, dec, fov_arcmin=4.0, gap_days=config.GAP_DAYS, span_days=config.SPAN_DAYS,
                per_epoch=config.PER_EPOCH, max_epochs=config.MAX_EPOCHS, use_cache=True):
     t0 = time.time()
@@ -283,6 +300,9 @@ def build_view(ra, dec, fov_arcmin=4.0, gap_days=config.GAP_DAYS, span_days=conf
     demo = config.DEMO_DIR / "views" / f"{vid}.json"
     if use_cache and demo.exists():        # bundled challenge target: no archive needed
         return json.loads(demo.read_text())
+    near = _demo_near(ra, dec) if use_cache else None
+    if near is not None:                   # same target asked with another field size
+        return near
     cached = config.VIEW_DIR / f"{vid}.json"
     if use_cache and cached.exists():
         return json.loads(cached.read_text())
