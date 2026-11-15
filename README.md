@@ -9,9 +9,37 @@ app_port: 7860
 
 # Galadriel: SPHEREx motion explorer
 
+**Live:** https://galadriel-voae.onrender.com (free server: the first visit after a quiet
+spell takes about 50 seconds to wake up).
+
 A public web tool for the 2026 NASA Space Apps Challenge, **"Planet X and SPHEREx"**.
 Type a name or RA/Dec. The tool then plays NASA SPHEREx infrared images of that patch of
 sky, one survey visit after another, so anything that moves or changes stands out.
+
+## Does it work? Tested on the five challenge targets
+Speed is measured from SPHEREx pictures alone, then compared with the catalogue value
+(Gaia DR3 and SIMBAD). One SPHEREx pixel is 6.2″.
+
+| Target | SPHEREx speed | Catalogue | Error (SPHEREx pixels) | Result |
+|---|---|---|---|---|
+| Barnard's Star | 9.8″/yr | 10.4″/yr | 0.28 (direction off 9°) | motion found |
+| WISE 0855 (camera D6 only) | 11.1″/yr | 8.2″/yr | 0.49 (direction off 5°) | motion found |
+| Epsilon Indi B | 4.4″/yr | 4.7″/yr | 0.07 (direction off 1°) | motion found |
+| RW Aurigae | 0.9″/yr | 0.0″/yr | 0.15 | correctly still |
+| R Draconis (12 visits) | 3.4″/yr | 0.0″/yr | 0.70 | correctly still |
+
+Very bright stars overload the detector centre, so for them the speed comes from the glow
+around the star, and anything under 5″/yr is reported as still. Reproduce the table with
+`python -m scripts.selfcheck` then `python -m scripts.make_proof`.
+
+## For everyone, in 10 languages
+Guided one-minute missions on real data, a numbered page map, a plain-language briefing under
+the image, an ⓘ explanation on every panel and chart, and a Simple view. The whole interface
+switches between English, 中文, हिन्दी, Español, Français, العربية, বাংলা, Português, සිංහල
+and தமிழ் (files in `app/static/lang/`; add a language by adding one JSON file).
+
+The five challenge targets are bundled with the app (`app/demo/`), so they open instantly and
+still work when NASA's archive is down.
 
 ## What it does
 - **Blink** through every SPHEREx survey visit, all on one shared brightness scale.
@@ -54,9 +82,9 @@ synthetic data, and open http://localhost:8001.
 Run the tests with `pytest -q`.
 
 ## Deploy (free public URL)
-Hugging Face Spaces: create a Space, choose the **Docker** SDK, and push this folder.
-The front matter at the top of this README configures it. Render and Railway can use the
-same `Dockerfile`.
+Render: New → Web Service → this repository → Docker → Free. Every push redeploys. The same
+`Dockerfile` also runs on Railway, Fly.io or Hugging Face Spaces (Docker SDK; the front matter
+at the top of this README configures it).
 
 ## How it works
 1. A TAP query to IRSA (`spherex.plane` joined with `spherex.artifact`) finds every spectral
